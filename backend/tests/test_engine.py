@@ -1,4 +1,5 @@
 import random
+from dataclasses import replace
 
 import pytest
 
@@ -185,3 +186,49 @@ class TestReplay:
         engine2.replay(results)
         assert engine2.bans[B] == [None]
         assert engine2.turn_index == 1
+
+    def test_replay_restores_assigned_lanes(self, engine):
+        # Play a full draft capturing TurnResults, then simulate a persisted lane
+        # on blue's first pick and confirm a fresh engine restores it on replay.
+        results = []
+        for _ in range(TOTAL_TURNS):
+            team, _ = DRAFT_SEQUENCE[engine.turn_index]
+            results.append(engine.confirm(team, sorted(engine.selectable())[0]))
+        turn_index = engine.pick_turns[B][0]
+        results = [
+            replace(r, lane="mid") if r.turn_index == turn_index else r
+            for r in results
+        ]
+        engine2 = DraftEngine(champion_pool=set(POOL))
+        engine2.replay(results)
+        assert engine2.lanes[B][0] == "mid"
+
+
+class TestLaneAssignment:
+    def _complete(self, engine):
+        play_turns(engine, TOTAL_TURNS)
+
+    def test_assign_lane_sets_and_returns_turn_index(self, engine):
+        self._complete(engine)
+        turn_index = engine.assign_lane(B, 2, "top")
+        assert engine.lanes[B][2] == "top"
+        assert turn_index == engine.pick_turns[B][2]
+
+    def test_assign_lane_rejected_before_completion(self, engine):
+        with pytest.raises(InvalidActionError):
+            engine.assign_lane(B, 0, "top")
+
+    def test_assign_lane_invalid_lane_rejected(self, engine):
+        self._complete(engine)
+        with pytest.raises(InvalidActionError):
+            engine.assign_lane(B, 0, "midlane")
+
+    def test_assign_lane_out_of_range_rejected(self, engine):
+        self._complete(engine)
+        with pytest.raises(InvalidActionError):
+            engine.assign_lane(B, 5, "top")
+
+    def test_lanes_start_empty_until_assigned(self, engine):
+        self._complete(engine)
+        assert engine.lanes[B] == [None] * 5
+        assert engine.lanes[R] == [None] * 5

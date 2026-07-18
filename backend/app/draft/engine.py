@@ -37,6 +37,10 @@ class DraftStatus(str, Enum):
     COMPLETED = "completed"
 
 
+# Lanes a champion can be assigned to once the draft is over.
+LANES: frozenset[str] = frozenset({"top", "jungle", "mid", "bot", "support"})
+
+
 @dataclass(frozen=True)
 class TurnResult:
     """A confirmed action, ready to be persisted as a DraftAction row."""
@@ -46,6 +50,7 @@ class TurnResult:
     action_type: ActionType
     champion_id: str | None  # None = skipped ban (timeout without hover)
     is_auto: bool
+    lane: str | None = None  # post-draft lane for picks; None otherwise
 
 
 class DraftEngine:
@@ -67,6 +72,10 @@ class DraftEngine:
         self.bans: dict[Team, list[str | None]] = {Team.BLUE: [], Team.RED: []}
         self.picks: dict[Team, list[str]] = {Team.BLUE: [], Team.RED: []}
         self.hovered: str | None = None
+        # Lanes assigned after the draft, parallel to picks[team]. pick_turns
+        # maps each pick's list index back to its turn_index (for persistence).
+        self.lanes: dict[Team, list[str | None]] = {Team.BLUE: [], Team.RED: []}
+        self.pick_turns: dict[Team, list[int]] = {Team.BLUE: [], Team.RED: []}
 
     # --- queries ---------------------------------------------------------
 
@@ -128,6 +137,20 @@ class DraftEngine:
             return self._apply(champion, is_auto=True)
         return self._apply(None, is_auto=True)  # skipped ban
 
+    # --- post-draft lane assignment --------------------------------------
+
+    def assign_lane(self, team: Team, pick_index: int, lane: str) -> int:
+        """Assign a lane to one of a team's picks. Returns the pick's turn_index
+        (so the caller can persist it on the matching DraftAction row)."""
+        if self.status != DraftStatus.COMPLETED:
+            raise InvalidActionError("El draft aún no ha terminado.")
+        if lane not in LANES:
+            raise InvalidActionError("Línea no válida.")
+        if not 0 <= pick_index < len(self.picks[team]):
+            raise InvalidActionError("Pick no válido.")
+        self.lanes[team][pick_index] = lane
+        return self.pick_turns[team][pick_index]
+
     # --- replay (rebuild from persisted actions) -------------------------
 
     def replay(self, results: list[TurnResult]) -> None:
@@ -141,7 +164,9 @@ class DraftEngine:
                 raise InvalidActionError("Replay actions out of order.")
             if result.champion_id is not None:
                 self._require_selectable(result.champion_id)
-            self._apply(result.champion_id, is_auto=result.is_auto)
+            self._apply(
+                result.champion_id, is_auto=result.is_auto, lane=result.lane
+            )
 
     # --- internals -------------------------------------------------------
 
@@ -164,7 +189,9 @@ class DraftEngine:
         if champion_id in self.unavailable():
             raise ChampionUnavailableError("Ese campeón ya no está disponible.")
 
-    def _apply(self, champion_id: str | None, is_auto: bool) -> TurnResult:
+    def _apply(
+        self, champion_id: str | None, is_auto: bool, lane: str | None = None
+    ) -> TurnResult:
         team, action = DRAFT_SEQUENCE[self.turn_index]
         if action == ActionType.BAN:
             self.bans[team].append(champion_id)
@@ -172,6 +199,8 @@ class DraftEngine:
             if champion_id is None:
                 raise InvalidActionError("A pick cannot be empty.")
             self.picks[team].append(champion_id)
+            self.lanes[team].append(lane)
+            self.pick_turns[team].append(self.turn_index)
 
         result = TurnResult(
             turn_index=self.turn_index,
@@ -179,6 +208,7 @@ class DraftEngine:
             action_type=action,
             champion_id=champion_id,
             is_auto=is_auto,
+            lane=lane if action == ActionType.PICK else None,
         )
         self.turn_index += 1
         self.hovered = None

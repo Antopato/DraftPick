@@ -4,6 +4,7 @@ from ..db import get_session
 from ..models import Game, Room
 from ..schemas import RoomCreate, RoomLinks
 from ..services.ddragon import ChampionCatalogError
+from ..services.lanes import lane_catalog
 from ..services.room_manager import UnknownTokenError, manager
 
 router = APIRouter(prefix="/api")
@@ -12,6 +13,13 @@ router = APIRouter(prefix="/api")
 @router.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@router.get("/champion-lanes")
+async def champion_lanes() -> dict:
+    """Slim {championId: [lane,...]} map (from Meraki). Empty on upstream failure
+    so the client's lane filter degrades gracefully instead of erroring."""
+    return {"lanes": await lane_catalog.get_lanes()}
 
 
 @router.post("/rooms", response_model=RoomLinks)

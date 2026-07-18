@@ -1,12 +1,14 @@
-import { portraitUrl, splashUrl } from '../lib/ddragon'
+import { portraitUrl } from '../lib/ddragon'
+import { LANE_LABELS, LANE_ORDER } from '../lib/championLanes'
 import type { Champion } from '../lib/ddragon'
-import type { DraftState, TeamSide } from '../lib/types'
+import type { DraftState, Lane, TeamSide } from '../lib/types'
 
 interface Props {
   state: DraftState
   version: string
   championsById: Map<string, Champion>
   onNextGame: () => void
+  onAssignLane: (pickIndex: number, lane: Lane) => void
 }
 
 export default function DraftSummary({
@@ -14,41 +16,75 @@ export default function DraftSummary({
   version,
   championsById,
   onNextGame,
+  onAssignLane,
 }: Props) {
   const isCaptain = state.your_role === 'blue' || state.your_role === 'red'
   const seriesOver = state.status === 'series_completed'
   const nameOf = (id: string) => championsById.get(id)?.name ?? id
 
-  const renderTeam = (side: TeamSide) => (
-    <div className={`summary-team summary-team--${side}`}>
-      <h3>{side === 'blue' ? state.room.blue_name : state.room.red_name}</h3>
-      <div className="summary-picks">
-        {state.picks[side].map((championId) => (
-          <figure key={championId} className="summary-pick">
-            <img src={splashUrl(championId)} alt={nameOf(championId)} />
-            <figcaption>{nameOf(championId)}</figcaption>
-          </figure>
-        ))}
+  const renderTeam = (side: TeamSide) => {
+    const canEdit = state.your_role === side // only that team's captain assigns
+    return (
+      <div className={`summary-team summary-team--${side}`}>
+        <h3>{side === 'blue' ? state.room.blue_name : state.room.red_name}</h3>
+        <ul className="summary-picks">
+          {state.picks[side].map((championId, i) => {
+            const lane = state.lanes[side]?.[i] ?? null
+            return (
+              <li key={championId} className="summary-pick">
+                <img
+                  src={portraitUrl(version, championId)}
+                  alt={nameOf(championId)}
+                />
+                <span className="summary-pick-name">{nameOf(championId)}</span>
+                <div className="lane-picker" role="group" aria-label="Línea">
+                  {LANE_ORDER.map((key) => {
+                    const on = lane === key
+                    const cls = on ? 'lane-chip lane-chip--on' : 'lane-chip'
+                    return canEdit ? (
+                      <button
+                        key={key}
+                        className={cls}
+                        aria-pressed={on}
+                        title={LANE_LABELS[key]}
+                        onClick={() => onAssignLane(i, key)}
+                      >
+                        {LANE_LABELS[key]}
+                      </button>
+                    ) : (
+                      // Read-only: opponent / spectator only see the choice.
+                      on && (
+                        <span key={key} className="lane-chip lane-chip--on">
+                          {LANE_LABELS[key]}
+                        </span>
+                      )
+                    )
+                  })}
+                </div>
+              </li>
+            )
+          })}
+        </ul>
+        <div className="summary-bans">
+          <span>Bans:</span>
+          {state.bans[side].map((championId, i) =>
+            championId ? (
+              <img
+                key={i}
+                src={portraitUrl(version, championId)}
+                alt={nameOf(championId)}
+                title={nameOf(championId)}
+              />
+            ) : (
+              <span key={i} className="ban-skipped" title="Ban saltado">
+                –
+              </span>
+            ),
+          )}
+        </div>
       </div>
-      <div className="summary-bans">
-        <span>Bans:</span>
-        {state.bans[side].map((championId, i) =>
-          championId ? (
-            <img
-              key={i}
-              src={portraitUrl(version, championId)}
-              alt={nameOf(championId)}
-              title={nameOf(championId)}
-            />
-          ) : (
-            <span key={i} className="ban-skipped" title="Ban saltado">
-              –
-            </span>
-          ),
-        )}
-      </div>
-    </div>
-  )
+    )
+  }
 
   return (
     <div className="summary">

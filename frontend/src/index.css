@@ -423,22 +423,27 @@ h3 {
   font-size: 1rem;
 }
 
-.tag-filters {
+.lane-filters {
   display: flex;
-  gap: 6px;
+  gap: 4px;
   flex-wrap: wrap;
 }
 
-.tag-btn {
-  background: var(--bg-card);
+.lane-btn {
+  background: none;
   border: 1px solid var(--border);
   color: var(--text-dim);
-  border-radius: 999px;
-  padding: 4px 12px;
-  font-size: 0.85rem;
+  border-radius: 5px;
+  padding: 3px 10px;
+  font-size: 0.8rem;
 }
 
-.tag-btn--on {
+.lane-btn:hover {
+  border-color: var(--gold);
+  color: var(--text);
+}
+
+.lane-btn--on {
   border-color: var(--gold);
   color: var(--gold);
 }
@@ -672,26 +677,65 @@ h3 {
 }
 
 .summary-picks {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .summary-pick {
-  margin: 0;
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  align-items: center;
+  column-gap: 8px;
+  row-gap: 3px;
+  padding: 4px 6px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-card);
+  text-align: left;
 }
 
 .summary-pick img {
-  width: 100%;
-  aspect-ratio: 308 / 560;
+  grid-row: span 2;
+  width: 34px;
+  height: 34px;
+  border-radius: 4px;
   object-fit: cover;
-  border-radius: 6px;
-  border: 1px solid var(--border);
 }
 
-.summary-pick figcaption {
-  font-size: 0.8rem;
-  margin-top: 3px;
+.summary-pick-name {
+  font-size: 0.82rem;
+  align-self: end;
+}
+
+/* Compact lane selector under each pick, styled like the thin ban/pick slots. */
+.lane-picker {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+}
+
+.lane-chip {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 0.68rem;
+  line-height: 1.4;
+}
+
+button.lane-chip:hover {
+  border-color: var(--gold);
+  color: var(--text);
+}
+
+.lane-chip--on {
+  border-color: var(--gold);
+  color: var(--gold);
 }
 
 .summary-bans {

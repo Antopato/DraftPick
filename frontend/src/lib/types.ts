@@ -34,6 +34,8 @@ export interface DraftState {
   server_now: number
   bans: Record<TeamSide, (string | null)[]>
   picks: Record<TeamSide, string[]>
+  // Lanes assigned after the draft, parallel to picks[side] (null = unassigned).
+  lanes: Record<TeamSide, (string | null)[]>
   hovered: string | null
   fearless_blocked: string[]
   your_role: Role
@@ -54,9 +56,12 @@ export interface RoomCreatePayload {
   red_name?: string
 }
 
+export type Lane = 'top' | 'jungle' | 'mid' | 'bot' | 'support'
+
 export type ClientMessage =
   | { type: 'ready' }
   | { type: 'hover'; champion_id: string | null }
   | { type: 'confirm'; champion_id: string }
+  | { type: 'assign_lane'; pick_index: number; lane: Lane }
   | { type: 'next_game' }
   | { type: 'ping' }

@@ -113,6 +113,10 @@ class LiveRoom:
                 "blue": engine.picks[Team.BLUE],
                 "red": engine.picks[Team.RED],
             },
+            "lanes": {
+                "blue": engine.lanes[Team.BLUE],
+                "red": engine.lanes[Team.RED],
+            },
             "hovered": engine.hovered,
             "fearless_blocked": sorted(engine.fearless_blocked),
         }
@@ -175,6 +179,7 @@ class RoomManager:
                             action_type=ActionType(a.action_type),
                             champion_id=a.champion_id,
                             is_auto=a.is_auto,
+                            lane=a.lane,
                         )
                         for a in game.actions
                     ]
@@ -214,6 +219,13 @@ class RoomManager:
                     raise InvalidActionError("Debes elegir un campeón.")
                 result = live.engine.confirm(team, champion_id)
                 self._after_action(live, result)
+            elif msg_type == "assign_lane":
+                pick_index = message.get("pick_index")
+                lane = message.get("lane")
+                if not isinstance(pick_index, int) or not isinstance(lane, str):
+                    raise InvalidActionError("Asignación de línea no válida.")
+                turn_index = live.engine.assign_lane(team, pick_index, lane)
+                self._persist_lane(live, turn_index, lane)
             elif msg_type == "next_game":
                 await self._next_game(live)
             else:
@@ -257,6 +269,24 @@ class RoomManager:
             game = session.get(Game, live.game_id)
             game.status = "in_progress"
             session.commit()
+        finally:
+            session.close()
+
+    def _persist_lane(self, live: LiveRoom, turn_index: int, lane: str) -> None:
+        """Store a post-draft lane on the matching pick's DraftAction row."""
+        session = get_session()
+        try:
+            action = (
+                session.query(DraftAction)
+                .filter(
+                    DraftAction.game_id == live.game_id,
+                    DraftAction.turn_index == turn_index,
+                )
+                .first()
+            )
+            if action is not None:
+                action.lane = lane
+                session.commit()
         finally:
             session.close()
 

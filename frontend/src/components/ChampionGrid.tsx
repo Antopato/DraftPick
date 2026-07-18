@@ -1,24 +1,17 @@
 import { useMemo, useState } from 'react'
 import { portraitUrl } from '../lib/ddragon'
+import { LANE_LABELS, LANE_ORDER } from '../lib/championLanes'
 import type { Champion } from '../lib/ddragon'
-import type { DraftState } from '../lib/types'
+import type { DraftState, Lane } from '../lib/types'
 
 interface Props {
   champions: Champion[]
   version: string
   state: DraftState
   canAct: boolean
+  lanesById: Map<string, Lane[]>
   onHover: (championId: string) => void
   onConfirm: (championId: string) => void
-}
-
-const TAG_LABELS: Record<string, string> = {
-  Fighter: 'Luchador',
-  Tank: 'Tanque',
-  Mage: 'Mago',
-  Assassin: 'Asesino',
-  Marksman: 'Tirador',
-  Support: 'Soporte',
 }
 
 function normalize(text: string): string {
@@ -33,11 +26,12 @@ export default function ChampionGrid({
   version,
   state,
   canAct,
+  lanesById,
   onHover,
   onConfirm,
 }: Props) {
   const [search, setSearch] = useState('')
-  const [tag, setTag] = useState<string>('')
+  const [lane, setLane] = useState<Lane | ''>('')
 
   const banned = useMemo(() => {
     const set = new Set<string>()
@@ -58,7 +52,12 @@ export default function ChampionGrid({
   const visible = useMemo(() => {
     const query = normalize(search.trim())
     return champions.filter((champion) => {
-      if (tag && !champion.tags.includes(tag)) return false
+      if (lane) {
+        // No lane data (e.g. a brand-new champion) matches every lane, so it is
+        // never wrongly hidden.
+        const lanes = lanesById.get(champion.id)
+        if (lanes && lanes.length && !lanes.includes(lane)) return false
+      }
       if (!query) return true
       // Match both the Spanish display name and the English id.
       return (
@@ -66,7 +65,7 @@ export default function ChampionGrid({
         normalize(champion.id).includes(query)
       )
     })
-  }, [champions, search, tag])
+  }, [champions, search, lane, lanesById])
 
   return (
     <div className="champion-browser">
@@ -78,20 +77,20 @@ export default function ChampionGrid({
           onChange={(e) => setSearch(e.target.value)}
           aria-label="Buscar campeón"
         />
-        <div className="tag-filters">
+        <div className="lane-filters" role="group" aria-label="Filtrar por línea">
           <button
-            className={tag === '' ? 'tag-btn tag-btn--on' : 'tag-btn'}
-            onClick={() => setTag('')}
+            className={lane === '' ? 'lane-btn lane-btn--on' : 'lane-btn'}
+            onClick={() => setLane('')}
           >
-            Todos
+            Todas
           </button>
-          {Object.entries(TAG_LABELS).map(([key, label]) => (
+          {LANE_ORDER.map((key) => (
             <button
               key={key}
-              className={tag === key ? 'tag-btn tag-btn--on' : 'tag-btn'}
-              onClick={() => setTag(tag === key ? '' : key)}
+              className={lane === key ? 'lane-btn lane-btn--on' : 'lane-btn'}
+              onClick={() => setLane(lane === key ? '' : key)}
             >
-              {label}
+              {LANE_LABELS[key]}
             </button>
           ))}
         </div>

@@ -82,6 +82,9 @@ class DraftAction(Base):
     team: Mapped[str] = mapped_column(String(8))  # 'blue' | 'red'
     champion_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
     is_auto: Mapped[bool] = mapped_column(Boolean, default=False)
+    # Lane assigned after the draft ends (picks only): 'top'|'jungle'|'mid'|
+    # 'bot'|'support'. NULL until a captain assigns it. Kept for Phase 2 analysis.
+    lane: Mapped[str | None] = mapped_column(String(8), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_now)
 
     game: Mapped[Game] = relationship(back_populates="actions")

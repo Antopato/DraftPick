@@ -8,13 +8,16 @@ import TurnBanner from '../components/TurnBanner'
 import TurnTimer from '../components/TurnTimer'
 import { useDraftSocket } from '../hooks/useDraftSocket'
 import { loadChampions } from '../lib/ddragon'
+import { loadChampionLanes } from '../lib/championLanes'
 import type { ChampionData } from '../lib/ddragon'
+import type { Lane } from '../lib/types'
 
 export default function DraftRoomPage() {
   const { token } = useParams<{ token: string }>()
   const { state, connectionStatus, lastError, send } = useDraftSocket(token ?? '')
   const [championData, setChampionData] = useState<ChampionData | null>(null)
   const [championError, setChampionError] = useState(false)
+  const [lanesById, setLanesById] = useState<Map<string, Lane[]>>(new Map())
 
   useEffect(() => {
     let cancelled = false
@@ -25,6 +28,12 @@ export default function DraftRoomPage() {
       .catch(() => {
         if (!cancelled) setChampionError(true)
       })
+    // Lane data is best-effort: on failure the filter simply shows every lane.
+    loadChampionLanes()
+      .then((lanes) => {
+        if (!cancelled) setLanesById(lanes)
+      })
+      .catch(() => {})
     return () => {
       cancelled = true
     }
@@ -109,6 +118,9 @@ export default function DraftRoomPage() {
               version={championData.version}
               championsById={championsById}
               onNextGame={() => send({ type: 'next_game' })}
+              onAssignLane={(pickIndex, lane) =>
+                send({ type: 'assign_lane', pick_index: pickIndex, lane })
+              }
             />
           ) : (
             <ChampionGrid
@@ -116,6 +128,7 @@ export default function DraftRoomPage() {
               version={championData.version}
               state={state}
               canAct={myTurn}
+              lanesById={lanesById}
               onHover={(championId) => send({ type: 'hover', champion_id: championId })}
               onConfirm={(championId) =>
                 send({ type: 'confirm', champion_id: championId })
