@@ -17,6 +17,9 @@ dist/
 # Stray empty repo (typo'd folder, kept out of the index)
 DraftPrick/
 
+# Claude Code session artifacts
+.claude/scheduled_tasks.lock
+
 # Editor/OS
 .vscode/
 .idea/
