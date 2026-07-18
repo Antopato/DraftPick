@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+*.db
+
+# Node
+node_modules/
+dist/
+
+# Env
+.env
+.env.local
+
+# Stray empty repo (typo'd folder, kept out of the index)
+DraftPrick/
+
+# Editor/OS
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store

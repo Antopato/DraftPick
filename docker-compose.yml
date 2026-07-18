@@ -1,0 +1,29 @@
+# Optional: run backend + frontend together for local dev.
+#   docker compose up --build
+# Backend: http://localhost:8000  ·  Frontend: http://localhost:5173
+services:
+  backend:
+    image: python:3.12-slim
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+    command: sh -c "pip install -r requirements.txt && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./draftpick.db
+      - CORS_ORIGINS=http://localhost:5173
+
+  frontend:
+    image: node:22-slim
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    command: sh -c "npm install && npm run dev -- --host"
+    ports:
+      - "5173:5173"
+    environment:
+      # Inside compose, the Vite proxy must reach the backend by service name.
+      - VITE_PROXY_TARGET=http://backend:8000
+    depends_on:
+      - backend
