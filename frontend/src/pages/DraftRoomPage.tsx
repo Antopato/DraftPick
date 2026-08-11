@@ -115,6 +115,7 @@ export default function DraftRoomPage() {
           {draftOver ? (
             <DraftSummary
               state={state}
+              token={token ?? ''}
               version={championData.version}
               championsById={championsById}
               onNextGame={() => send({ type: 'next_game' })}

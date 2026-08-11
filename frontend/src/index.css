@@ -873,3 +873,407 @@ button.lane-chip:hover {
   }
 }
 
+/* ---------- post-draft analysis ---------- */
+
+.analysis-panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-top: 14px;
+  text-align: left;
+}
+
+.analysis-panel h2 {
+  color: var(--gold);
+  margin: 0 0 12px;
+  font-size: 1.15rem;
+}
+
+.analysis-panel h3 {
+  margin: 18px 0 8px;
+  font-size: 0.95rem;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 4px;
+}
+
+.analysis-loading,
+.analysis-unavailable {
+  color: var(--text-dim);
+  font-size: 0.88rem;
+}
+
+.analysis-error p {
+  color: var(--danger);
+  margin: 0 0 8px;
+}
+
+.analysis-stale {
+  color: var(--gold-soft);
+  font-size: 0.8rem;
+  margin: 6px 0;
+}
+
+.analysis-footnote {
+  color: var(--text-dim);
+  font-size: 0.75rem;
+  margin: 8px 0 0;
+}
+
+.analysis-body--refreshing {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* verdict */
+
+.verdict-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+
+.verdict-card--blue {
+  border-left: 4px solid var(--blue);
+}
+
+.verdict-card--red {
+  border-left: 4px solid var(--red);
+}
+
+.verdict-card h3 {
+  margin: 0 0 8px;
+  border: none;
+  padding: 0;
+  font-size: 1.05rem;
+}
+
+.verdict-components {
+  border-collapse: collapse;
+  font-size: 0.84rem;
+}
+
+.verdict-components td {
+  padding: 2px 14px 2px 0;
+}
+
+.verdict-weight {
+  color: var(--text-dim);
+  font-size: 0.76rem;
+}
+
+.delta--blue {
+  color: var(--blue);
+  font-variant-numeric: tabular-nums;
+}
+
+.delta--red {
+  color: var(--red);
+  font-variant-numeric: tabular-nums;
+}
+
+.verdict-note {
+  color: var(--text-dim);
+  font-size: 0.74rem;
+  margin: 6px 0 0;
+}
+
+/* lane matchups */
+
+.matchup-row {
+  display: grid;
+  grid-template-columns: 92px 30px 1fr 30px minmax(120px, auto);
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+}
+
+.matchup-lane {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+}
+
+.matchup-inferred {
+  display: block;
+  font-size: 0.68rem;
+  color: var(--gold-soft);
+}
+
+.matchup-row img {
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+.matchup-bar {
+  position: relative;
+  height: 20px;
+  border-radius: 10px;
+  background: var(--grad-red);
+  overflow: hidden;
+}
+
+.matchup-bar--empty {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+}
+
+.matchup-bar-blue {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--grad-blue);
+}
+
+.matchup-bar-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.confidence-chip {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 2px 8px;
+  justify-self: start;
+  white-space: nowrap;
+}
+
+.confidence-chip--alta {
+  color: var(--gold-soft);
+  border-color: var(--border-strong);
+}
+
+.confidence-chip--sin_datos {
+  opacity: 0.6;
+}
+
+/* composition profile */
+
+.comp-archetypes {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.comp-vs {
+  color: var(--text-dim);
+  font-size: 0.78rem;
+}
+
+.comp-badge {
+  border-radius: 999px;
+  padding: 3px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.comp-badge--blue {
+  background: rgba(74, 148, 255, 0.16);
+  color: var(--blue);
+  border: 1px solid rgba(74, 148, 255, 0.4);
+}
+
+.comp-badge--red {
+  background: rgba(255, 95, 109, 0.14);
+  color: var(--red);
+  border: 1px solid rgba(255, 95, 109, 0.4);
+}
+
+.comp-metric {
+  display: grid;
+  grid-template-columns: 28px 1fr 28px;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.comp-metric-value {
+  font-size: 0.76rem;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+.comp-metric-bars {
+  display: grid;
+  grid-template-columns: 1fr 130px 1fr;
+  align-items: center;
+  gap: 8px;
+}
+
+.comp-metric-name {
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--text);
+}
+
+.comp-metric-bar {
+  height: 10px;
+  border-radius: 5px;
+  background: var(--bg-card);
+  overflow: hidden;
+}
+
+.comp-metric-bar--blue {
+  transform: scaleX(-1); /* bar grows from center outward to the left */
+}
+
+.comp-metric-bar--blue > div {
+  height: 100%;
+  background: var(--grad-blue);
+  border-radius: 5px;
+}
+
+.comp-metric-bar--red > div {
+  height: 100%;
+  background: var(--grad-red);
+  border-radius: 5px;
+}
+
+.comp-facts {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+  font-size: 0.76rem;
+  color: var(--text-dim);
+}
+
+.comp-warning {
+  font-size: 0.78rem;
+  margin: 4px 0 0;
+}
+
+.comp-warning--blue {
+  color: var(--blue);
+}
+
+.comp-warning--red {
+  color: var(--red);
+}
+
+.comp-breakdown,
+.phase-breakdown {
+  margin-top: 10px;
+  font-size: 0.8rem;
+}
+
+.comp-breakdown summary,
+.phase-breakdown summary {
+  cursor: pointer;
+  color: var(--text-dim);
+}
+
+.comp-breakdown table,
+.phase-breakdown table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+}
+
+.comp-breakdown th,
+.phase-breakdown th {
+  text-align: left;
+  color: var(--text-dim);
+  font-weight: 500;
+  font-size: 0.72rem;
+  padding: 3px 6px;
+}
+
+.comp-breakdown td,
+.phase-breakdown td {
+  padding: 3px 6px;
+  border-top: 1px solid var(--border);
+  font-variant-numeric: tabular-nums;
+}
+
+.row--blue td:first-child {
+  color: var(--blue);
+}
+
+.row--red td:first-child {
+  color: var(--red);
+}
+
+/* phases */
+
+.phase-segments {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.phase-segment {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  text-align: center;
+}
+
+.phase-segment--blue {
+  border-color: rgba(74, 148, 255, 0.55);
+  box-shadow: inset 0 0 18px -10px var(--blue);
+}
+
+.phase-segment--red {
+  border-color: rgba(255, 95, 109, 0.55);
+  box-shadow: inset 0 0 18px -10px var(--red);
+}
+
+.phase-name {
+  display: block;
+  font-size: 0.76rem;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+.phase-scores {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.phase-score--blue {
+  color: var(--blue);
+}
+
+.phase-score--red {
+  color: var(--red);
+}
+
+.phase-verdict {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.74rem;
+  color: var(--text);
+}
+
+@media (max-width: 900px) {
+  .matchup-row {
+    grid-template-columns: 70px 26px 1fr 26px auto;
+  }
+
+  .phase-segments {
+    grid-template-columns: 1fr;
+  }
+
+  .comp-metric-bars {
+    grid-template-columns: 1fr 92px 1fr;
+  }
+}

@@ -1,10 +1,12 @@
 import { portraitUrl } from '../lib/ddragon'
 import { LANE_LABELS, LANE_ORDER } from '../lib/championLanes'
+import AnalysisPanel from './analysis/AnalysisPanel'
 import type { Champion } from '../lib/ddragon'
 import type { DraftState, Lane, TeamSide } from '../lib/types'
 
 interface Props {
   state: DraftState
+  token: string
   version: string
   championsById: Map<string, Champion>
   onNextGame: () => void
@@ -13,6 +15,7 @@ interface Props {
 
 export default function DraftSummary({
   state,
+  token,
   version,
   championsById,
   onNextGame,
@@ -97,6 +100,12 @@ export default function DraftSummary({
         {renderTeam('blue')}
         {renderTeam('red')}
       </div>
+      <AnalysisPanel
+        state={state}
+        token={token}
+        version={version}
+        championsById={championsById}
+      />
       {!seriesOver && (
         <div className="summary-actions">
           {isCaptain ? (
