@@ -1,4 +1,4 @@
-import { portraitUrl } from '../lib/ddragon'
+import { portraitUrl, splashUrl } from '../lib/ddragon'
 import type { Champion } from '../lib/ddragon'
 import type { DraftState, TeamSide } from '../lib/types'
 
@@ -71,14 +71,14 @@ export default function TeamPanel({ side, state, version, championsById }: Props
             <li key={i} className={`pick-slot${isActive ? ' slot--active' : ''}`}>
               {pick ? (
                 <>
-                  <img src={portraitUrl(version, pick)} alt={nameOf(pick)} />
+                  <img src={splashUrl(pick)} alt={nameOf(pick)} />
                   <span className="pick-name">{nameOf(pick)}</span>
                 </>
               ) : showHover ? (
                 <>
                   <img
                     className="slot-hovered-img"
-                    src={portraitUrl(version, state.hovered!)}
+                    src={splashUrl(state.hovered!)}
                     alt={nameOf(state.hovered!)}
                   />
                   <span className="pick-name pick-name--hovered">

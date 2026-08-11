@@ -59,6 +59,8 @@ export function portraitUrl(version: string, championId: string): string {
   return `https://ddragon.leagueoflegends.com/cdn/${version}/img/champion/${championId}.png`
 }
 
+// Wide "splash" art (~1215x717): the full landscape scene, much more zoomed
+// out than the loading portrait or the square icon. Used as the pick-card art.
 export function splashUrl(championId: string): string {
-  return `https://ddragon.leagueoflegends.com/cdn/img/champion/loading/${championId}_0.jpg`
+  return `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${championId}_0.jpg`
 }
