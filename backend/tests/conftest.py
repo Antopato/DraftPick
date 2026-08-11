@@ -2,10 +2,27 @@ import random
 
 import pytest
 
+from app.analysis.types import ChampionProfile
 from app.draft.engine import DraftEngine
 from app.draft.sequence import DRAFT_SEQUENCE, Team
 
 POOL = {f"Champ{i:02d}" for i in range(60)}
+
+
+def make_profile(champion_id: str, **overrides) -> ChampionProfile:
+    """Champion profile with sane defaults for analysis tests."""
+    defaults = dict(
+        champion_id=champion_id,
+        numeric_id=abs(hash(champion_id)) % 1000,
+        tags=("Fighter",),
+        lanes=("top",),
+        attack_type="MELEE",
+        attack_range=175.0,
+        damage_type="PHYSICAL_DAMAGE",
+        ratings={"damage": 2, "toughness": 2, "control": 1, "mobility": 1, "utility": 1},
+    )
+    defaults.update(overrides)
+    return ChampionProfile(**defaults)
 
 
 @pytest.fixture
