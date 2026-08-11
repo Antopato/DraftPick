@@ -2,7 +2,7 @@ import secrets
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .db import Base
@@ -88,3 +88,32 @@ class DraftAction(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_now)
 
     game: Mapped[Game] = relationship(back_populates="actions")
+
+
+class StaticDataCache(Base):
+    """Per-patch cache of reduced external static data (CommunityDragon,
+    Meraki). Lets the analysis survive upstream outages and Render cold starts
+    without refetching; rows store reduced payloads, never raw CDN files."""
+
+    __tablename__ = "static_data_cache"
+    __table_args__ = (UniqueConstraint("source", "cache_key"),)
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
+    source: Mapped[str] = mapped_column(String(16), index=True)  # 'cdragon' | 'meraki'
+    cache_key: Mapped[str] = mapped_column(String(64))  # e.g. '16_15:266'
+    payload: Mapped[str] = mapped_column(Text)  # reduced JSON
+    fetched_at: Mapped[datetime] = mapped_column(DateTime, default=_now)
+
+
+class GameAnalysis(Base):
+    """Computed post-draft analysis for a completed game. A lane reassignment
+    changes the fingerprint, which simply produces a new row."""
+
+    __tablename__ = "game_analyses"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
+    game_id: Mapped[str] = mapped_column(ForeignKey("games.id"), index=True)
+    lanes_fingerprint: Mapped[str] = mapped_column(String(64))
+    patch: Mapped[str] = mapped_column(String(16))
+    payload: Mapped[str] = mapped_column(Text)  # full response JSON
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=_now)
