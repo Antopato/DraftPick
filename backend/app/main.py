@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .config import settings
 from .db import create_tables
-from .routers import rooms, ws
+from .routers import analysis, rooms, ws
 from .services.ddragon import ChampionCatalogError, catalog
 
 
@@ -30,3 +30,4 @@ app.add_middleware(
 
 app.include_router(rooms.router)
 app.include_router(ws.router)
+app.include_router(analysis.router)
