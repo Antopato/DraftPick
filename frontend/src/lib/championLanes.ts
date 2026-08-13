@@ -3,6 +3,7 @@
 // Lane codes are internal ('top'|'jungle'|'mid'|'bot'|'support'); UI labels are
 // Spanish. A champion missing from the map matches every lane (never hidden).
 
+import { API_BASE } from './api'
 import type { Lane } from './types'
 
 export const LANE_ORDER: Lane[] = ['top', 'jungle', 'mid', 'bot', 'support']
@@ -38,7 +39,7 @@ function readCache(): Record<string, string[]> | null {
 export async function loadChampionLanes(): Promise<Map<string, Lane[]>> {
   let lanes = readCache()
   if (!lanes) {
-    const res = await fetch('/api/champion-lanes')
+    const res = await fetch(`${API_BASE}/api/champion-lanes`)
     const body = (await res.json()) as { lanes: Record<string, string[]> }
     lanes = body.lanes ?? {}
     try {

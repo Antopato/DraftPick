@@ -25,7 +25,7 @@ export default function AnalysisPanel({
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [retryKey, setRetryKey] = useState(0)
-  const debounceRef = useRef<number>()
+  const debounceRef = useRef<number | undefined>(undefined)
 
   // Lane reassignments arrive via the WS full-state broadcast; refetch (with a
   // debounce so clicking through the lane chips doesn't hammer the endpoint).
